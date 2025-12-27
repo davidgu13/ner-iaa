@@ -1,6 +1,8 @@
 from metrics_calculator import MetricsCalculator
+from typings.ner_label import NERLabel
 
-if __name__ == '__main__':
+
+def main():
     input_text = "Paris Whitney Hilton , born February 17, 1981 is an American television " \
                  "personality and businesswoman . She is the great-granddaughter of " \
                  "Conrad Hilton , the founder of Hilton Hotels . Born in New York City and " \
@@ -49,3 +51,7 @@ if __name__ == '__main__':
     print(f"Scores without 'O':\n{scores_without_o}")
     scores_with_o = metrics_with_o.report_metrics(input_text, parsed_doccano_labels1, parsed_doccano_labels2)
     print(f"Scores with 'O':\n{scores_with_o}")
+
+
+if __name__ == '__main__':
+    main()

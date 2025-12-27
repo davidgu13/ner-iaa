@@ -3,3 +3,4 @@ venv39/
 .vscode/
 .idea/
 __pycache__
+.pytest_cache
