@@ -5,52 +5,27 @@ Metrics:
 - Accounting for partial overlap
 """
 import re
-from enum import Enum
 from typing import Callable, Optional
 
 import numpy as np
-import pandas as pd
-from irrCAC.table import CAC
-from pydantic import BaseModel, Field, field_validator
-from sklearn.metrics import f1_score
+
+from metrics import calculate_cohens_kappa, calculate_f1
+from typings.entity_type import ENTITY_TYPES
+from typings.ner_label import NERLabel
+from typings.supported_metrics import SupportedMetrics
+from typings.word_span import WordSpan
+
+metric2implementation = {SupportedMetrics.f1: calculate_f1, SupportedMetrics.cohens_kappa: calculate_cohens_kappa}
 
 
-class EntityType(str, Enum):
-    PER = "PER"
-    LOC = "LOC"
-    ORG = "ORG"
-    TEMP = "TEMP"
-
-
-ENTITY_TYPES = [member.value for member in EntityType]
-
-
-class SupportedMetric(Enum):
-    f1 = "f1"
-    cohens_kappa = "cohens_kappa"
-
-
-def calculate_f1(sequence1: list, sequence2: list) -> float:
-    return f1_score(sequence1, sequence2, zero_division=0)  # TODO think if zero_division has the correct value
-
-
-def calculate_cohens_kappa(sequence1: list, sequence2: list) -> float:
-    crosstab = pd.crosstab(sequence1, sequence2)
-    return CAC(crosstab).cohen()['est']['coefficient_value']
-
-
-metric2implementation = {SupportedMetric.f1: calculate_f1, SupportedMetric.cohens_kappa: calculate_cohens_kappa}
-
-
-
-class Metrics:
+class MetricsCalculator:
     """
     Assumptions:
     1. Tokenization is space-delimited; Partial overlap doesn't affect the scores
     2. Labels are at word level, e.g. "hu nasa le[pariz]" is forbidden
     3. NER labels are flat, not nested
     TODO:
-    - Check the calculations' correctness
+    - Check the calculations' correctness = add tests
     - Get rid of the space-delimetering (without using BIO) and move to using just the indices of the labels' spans. Is it also the part where partial overlapping is accounted?
     """
 
@@ -69,9 +44,9 @@ class Metrics:
         # \S+ matches any sequence of non-whitespace characters
         for match in re.finditer(r'\S+', text):
             tokens_with_indices.append(WordSpan.model_validate({
-                "text": match.group(),          # The actual text
-                "start_index": match.start(),   # Start index (inclusive)
-                "end_index": match.end()        # End index (exclusive)
+                "text": match.group(),  # The actual text
+                "start_index": match.start(),  # Start index (inclusive)
+                "end_index": match.end()  # End index (exclusive)
             }))
         return tokens_with_indices
 
@@ -83,7 +58,7 @@ class Metrics:
         :param labels: Doccano's spans format, e.g. [[20, 25, PER], [30, 40, LOC], [43, 49, ORG]]
         :return: the tags of each word
         """
-        words_spans: list[WordSpan] = Metrics._convert_text_to_word_spans(text)
+        words_spans: list[WordSpan] = MetricsCalculator._convert_text_to_word_spans(text)
         labels_start_indices = [label.start_index for label in labels]
 
         entity_types_sequence: list[str] = []
@@ -127,7 +102,7 @@ class Metrics:
         If "O" labels should be ignored, the common "O" labels are filtered out first.
         """
         if self.should_ignore_o_labels:
-            non_o_sequence1, non_o_sequence2 = Metrics._filter_non_o_labels(sequence1, sequence2)
+            non_o_sequence1, non_o_sequence2 = MetricsCalculator._filter_non_o_labels(sequence1, sequence2)
             sequence1_mask = [1 if item == entity else 0 for item in non_o_sequence1]
             sequence2_mask = [1 if item == entity else 0 for item in non_o_sequence2]
         else:
@@ -135,21 +110,22 @@ class Metrics:
             sequence2_mask = [1 if item == entity else 0 for item in sequence2]
         return sequence1_mask, sequence2_mask
 
-    def _calculate_score(self, entity_type: str, sequence1: list[str], sequence2: list[str], metric: SupportedMetric):
+    def _calculate_score(self, entity_type: str, sequence1: list[str], sequence2: list[str], metric: SupportedMetrics):
         # Mask the 2 labels w.r.t. the current entity, so the task is reduced to binary classification
         sequence1_mask, sequence2_mask = self._mask_sequence(sequence1, sequence2, entity_type)
         score_per_entity = metric2implementation[metric](sequence1_mask, sequence2_mask)
         return score_per_entity
 
     def report_metrics(self, text: str, labels1: list[NERLabel], labels2: list[NERLabel]):
-        sequence1 = Metrics._convert_labels_to_sequence(text, labels1)
-        sequence2 = Metrics._convert_labels_to_sequence(text, labels2)
+        sequence1 = MetricsCalculator._convert_labels_to_sequence(text, labels1)
+        sequence2 = MetricsCalculator._convert_labels_to_sequence(text, labels2)
 
         scores_per_entity = {}
         for entity_type in ENTITY_TYPES:
-            f1_score = self._calculate_score(entity_type, sequence1, sequence2, SupportedMetric.f1)
-            kappa_score = self._calculate_score(entity_type, sequence1, sequence2, SupportedMetric.cohens_kappa)
-            scores_per_entity[entity_type] = {"f1_score": np.round(f1_score, 4), "cohens_kappa_score": np.round(kappa_score, 4)}
+            f1_score = self._calculate_score(entity_type, sequence1, sequence2, SupportedMetrics.f1)
+            kappa_score = self._calculate_score(entity_type, sequence1, sequence2, SupportedMetrics.cohens_kappa)
+            scores_per_entity[entity_type] = {"f1_score": np.round(f1_score, 4),
+                                              "cohens_kappa_score": np.round(kappa_score, 4)}
         return scores_per_entity
 
 
@@ -186,16 +162,17 @@ if __name__ == '__main__':
                                                                             "entity_type": label[2]
                                                                             }) for label in doccano_labels]
     parsed_doccano_labels1 = parse_doccano_labels(doccano_labels1)
-    s = Metrics._convert_labels_to_sequence(input_text, parsed_doccano_labels1)
+    s = MetricsCalculator._convert_labels_to_sequence(input_text, parsed_doccano_labels1)
     # print(*list(enumerate(zip(input_text.split(" "), s))), sep='\n')
 
     ann1 = ["O", "O", "PER", "O", "O", "O", "PER", "PER", "O", "O", "ORG", "O"]
     ann2 = ["O", "O", "PER", "PER", "O", "O", "PER", "PER", "O", "O", "O", "O"]
 
-    # print(Metrics._filter_non_o_labels(ann1, ann2))
+    # print(MetricsCalculator._filter_non_o_labels(ann1, ann2))
 
     parsed_doccano_labels2 = parse_doccano_labels(doccano_labels2)
-    metrics_without_o, metrics_with_o = Metrics(should_ignore_o_labels=True), Metrics(should_ignore_o_labels=False)
+    metrics_without_o, metrics_with_o = MetricsCalculator(should_ignore_o_labels=True), MetricsCalculator(
+        should_ignore_o_labels=False)
 
     scores_without_o = metrics_without_o.report_metrics(input_text, parsed_doccano_labels1, parsed_doccano_labels2)
     print(f"Scores without 'O':\n{scores_without_o}")
