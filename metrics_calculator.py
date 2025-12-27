@@ -1,9 +1,3 @@
-"""
-Metrics:
-- Mutual F1 score, mutual Cohen's Kappa score
-- With O occurrences, without O occurrences
-- Accounting for partial overlap
-"""
 import re
 from typing import Callable, Optional
 
@@ -20,10 +14,13 @@ metric2implementation = {SupportedMetrics.f1: calculate_f1, SupportedMetrics.coh
 
 class MetricsCalculator:
     """
-    Assumptions:
-    1. Tokenization is space-delimited; Partial overlap doesn't affect the scores
-    2. Labels are at word level, e.g. "hu nasa le[pariz]" is forbidden
-    3. NER labels are flat, not nested
+    Features:
+    1. Supported metrics: mutual F1 score, mutual Cohen's Kappa score
+    2. Both ignoring and accounting for "O" label occurrences are supported
+    3. Tokenization is space-delimited; Partial overlap doesn't affect the scores (= isn't accounted?)
+    4. Labels are at word level, e.g. "hu nasa le[pariz]" is forbidden
+    5. NER labels are flat, not nested
+    6. Entity types are statically defined, not dynamically inferred
     TODO:
     - Check the calculations' correctness = add tests
     - Get rid of the space-delimetering (without using BIO) and move to using just the indices of the labels' spans. Is it also the part where partial overlapping is accounted?
@@ -127,54 +124,3 @@ class MetricsCalculator:
             scores_per_entity[entity_type] = {"f1_score": np.round(f1_score, 4),
                                               "cohens_kappa_score": np.round(kappa_score, 4)}
         return scores_per_entity
-
-
-if __name__ == '__main__':
-    input_text = "Paris Whitney Hilton , born February 17, 1981 is an American television " \
-                 "personality and businesswoman . She is the great-granddaughter of " \
-                 "Conrad Hilton , the founder of Hilton Hotels . Born in New York City and " \
-                 "raised in both California and New York , Hilton began a modeling career " \
-                 "when she signed with Donald Trump ’s modeling agency ."
-    doccano_labels1 = [[0, 20, 'PER'],  # Paris Whitney Hilton
-                       [28, 45, 'TEMP'],  # February 17 , 1981
-                       [138, 151, 'PER'],  # Conrad Hilton
-                       [169, 182, 'ORG'],  # Hilton Hotel
-                       [193, 206, 'LOC'],  # New York City
-                       [226, 236, 'LOC'],  # California
-                       [241, 249, 'LOC'],  # New York
-                       [252, 258, 'PER'],  # Hilton
-                       # [304, 316, 'PER'],    # Donald Trump
-                       [304, 335, 'ORG']]  # Donald Trump ’s modeling agency
-
-    doccano_labels2 = [[0, 20, 'PER'],  # Paris Whitney Hilton
-                       [28, 45, 'TEMP'],  # February 17 , 1981
-                       [138, 151, 'PER'],  # Conrad Hilton
-                       [169, 182, 'ORG'],  # Hilton Hotels
-                       [185, 189, 'PER'],  # Born
-                       [193, 206, 'LOC'],  # New York City
-                       [226, 236, 'LOC'],  # California
-                       [241, 249, 'LOC'],  # New York
-                       [252, 258, 'PER'],  # Hilton
-                       [267, 275, 'LOC']]  # modeling
-
-    parse_doccano_labels = lambda doccano_labels: [NERLabel.model_validate({"start_index": label[0],
-                                                                            "end_index": label[1],
-                                                                            "entity_type": label[2]
-                                                                            }) for label in doccano_labels]
-    parsed_doccano_labels1 = parse_doccano_labels(doccano_labels1)
-    s = MetricsCalculator._convert_labels_to_sequence(input_text, parsed_doccano_labels1)
-    # print(*list(enumerate(zip(input_text.split(" "), s))), sep='\n')
-
-    ann1 = ["O", "O", "PER", "O", "O", "O", "PER", "PER", "O", "O", "ORG", "O"]
-    ann2 = ["O", "O", "PER", "PER", "O", "O", "PER", "PER", "O", "O", "O", "O"]
-
-    # print(MetricsCalculator._filter_non_o_labels(ann1, ann2))
-
-    parsed_doccano_labels2 = parse_doccano_labels(doccano_labels2)
-    metrics_without_o, metrics_with_o = MetricsCalculator(should_ignore_o_labels=True), MetricsCalculator(
-        should_ignore_o_labels=False)
-
-    scores_without_o = metrics_without_o.report_metrics(input_text, parsed_doccano_labels1, parsed_doccano_labels2)
-    print(f"Scores without 'O':\n{scores_without_o}")
-    scores_with_o = metrics_with_o.report_metrics(input_text, parsed_doccano_labels1, parsed_doccano_labels2)
-    print(f"Scores with 'O':\n{scores_with_o}")
