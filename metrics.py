@@ -3,15 +3,17 @@ import pandas as pd
 from irrCAC.table import CAC
 from sklearn.metrics import f1_score
 
+from typings.binary_list import BinaryList
 
-def calculate_f1(sequence1: list, sequence2: list) -> float:
+
+def calculate_f1(sequence1: BinaryList, sequence2: BinaryList) -> float:
     if not sequence1 and not sequence2:
         return np.nan
 
     return f1_score(sequence1, sequence2, zero_division=1)
 
 
-def calculate_cohens_kappa(sequence1: list, sequence2: list) -> float:
+def calculate_cohens_kappa(sequence1: BinaryList, sequence2: BinaryList) -> float:
     """
         Calculates Cohen's Kappa coefficient for two sequences, handling edge cases and
         ensuring a complete contingency table.

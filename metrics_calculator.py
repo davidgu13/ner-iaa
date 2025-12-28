@@ -4,6 +4,7 @@ from typing import Callable, Optional
 import numpy as np
 
 from metrics import calculate_cohens_kappa, calculate_f1
+from typings.binary_list import BinaryList
 from typings.entity_type import ENTITY_TYPES
 from typings.ner_label import NERLabel
 from typings.supported_metrics import SupportedMetrics
@@ -76,7 +77,7 @@ class MetricsCalculator:
         return entity_types_sequence
 
     @staticmethod
-    def _filter_non_o_labels(sequence1: list[str], sequence2: list[str]):
+    def _filter_non_o_labels(sequence1: list[str], sequence2: list[str]) -> tuple[list[str], list[str]]:
         """
             Returns two lists containing only the elements where
             at least one of the annotators did not label it as "O".
@@ -93,7 +94,7 @@ class MetricsCalculator:
         return list(non_o_sequence1), list(non_o_sequence2)
 
     def _mask_sequence(self, sequence1: list[str], sequence2: list[str], entity: str) -> \
-            tuple[list[int], list[int]]:
+            tuple[BinaryList, BinaryList]:
         """
         Mask two lists of NER labels, with respect to one of the entity types.
         If "O" labels should be ignored, the common "O" labels are filtered out first.
