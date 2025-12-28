@@ -23,7 +23,7 @@ class MetricsCalculator:
     5. NER labels are flat, not nested
     6. Entity types are statically defined, not dynamically inferred
     TODO:
-    - Check the calculations' correctness = add tests
+    - Add tests for this class' logic
     - Get rid of the space-delimetering (without using BIO) and move to using just the indices of the labels' spans. Is it also the part where partial overlapping is accounted?
     """
 
