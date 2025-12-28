@@ -11,7 +11,29 @@ def calculate_f1(sequence1: list, sequence2: list) -> float:
 
 
 def calculate_cohens_kappa(sequence1: list, sequence2: list) -> float:
-    crosstab = pd.crosstab(sequence1, sequence2)
+    """
+        Calculates Cohen's Kappa coefficient for two sequences, handling edge cases and
+        ensuring a complete contingency table.
+
+        The function manually handles cases of zero variance (unanimous agreement
+        on a single class) which typically cause division-by-zero errors in
+        standard Kappa implementations.
+
+        Edge Cases:
+        1. If both sequences are empty, returns np.nan.
+        2. If both sequences contain only "O" or 0, returns 1.0.
+        3. If both sequences contain only non-"O"/non-0 labels (unanimous
+           agreement on a specific entity), returns 1.0.
+        4. In mathematical scenarios where agreement is purely due to chance
+           or the divisor is zero, the underlying irrCAC library may return np.nan.
+
+        Args:
+            sequence1 (list): The labels assigned by the first rater.
+            sequence2 (list): The labels assigned by the second rater.
+
+        Returns:
+            float: Cohen's Kappa coefficient or np.nan if the calculation is undefined.
+    """
     if not sequence1 and not sequence2:
         return np.nan
 
