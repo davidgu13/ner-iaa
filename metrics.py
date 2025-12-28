@@ -7,6 +7,7 @@ from sklearn.metrics import f1_score
 def calculate_f1(sequence1: list, sequence2: list) -> float:
     if not sequence1 and not sequence2:
         return np.nan
+
     return f1_score(sequence1, sequence2, zero_division=1)
 
 
