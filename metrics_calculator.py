@@ -22,8 +22,9 @@ class MetricsCalculator:
     4. Labels are at word level, e.g. "hu nasa le[pariz]" is forbidden
     5. NER labels are flat, not nested
     6. Entity types are statically defined, not dynamically inferred
+    7. BIO format is not supported, because it's tokenization-coupled
     TODO:
-    - Add tests for this class' logic
+    - Add tests for this class' logic using the code in main.py
     - Get rid of the space-delimetering (without using BIO) and move to using just the indices of the labels' spans. Is it also the part where partial overlapping is accounted?
     """
 
@@ -54,7 +55,7 @@ class MetricsCalculator:
         Covnert Doccano's spans format to word-level tags.
         :param text: str
         :param labels: Doccano's spans format, e.g. [[20, 25, PER], [30, 40, LOC], [43, 49, ORG]]
-        :return: the tags of each word
+        :return: the tags of each word of the text
         """
         words_spans: list[WordSpan] = MetricsCalculator._convert_text_to_word_spans(text)
         labels_start_indices = [label.start_index for label in labels]
@@ -68,8 +69,8 @@ class MetricsCalculator:
             if should_be_B_tag or should_be_I_tag:
                 try:
                     current_label = [label for label in labels if word_span in label][0]
-                except IndexError as e:
-                    raise e  # "WTF Bro there's a label-text conflict"
+                except IndexError:
+                    raise IndexError(f"A label-text conflict found for span: {word_span}")
                 entity_type = current_label.entity_type
             else:
                 entity_type = "O"
