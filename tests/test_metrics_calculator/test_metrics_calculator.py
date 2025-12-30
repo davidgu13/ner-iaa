@@ -1,0 +1,43 @@
+import pytest
+
+from metrics_calculator import MetricsCalculator
+from tests.test_metrics_calculator.constants import FILTER_NON_O_LABELS_CASES, LABELS_TO_SEQUENCE_CASES, \
+    TEXT_TO_WORD_SPANS_CASES
+from typings.ner_label import NERLabel
+
+
+class TestMetricsCalculator:
+    @pytest.mark.parametrize("text, expected", TEXT_TO_WORD_SPANS_CASES)
+    def test_convert_text_to_word_spans(self, text, expected):
+        """Verifies that text is correctly split into WordSpan objects with accurate indices."""
+        assert MetricsCalculator._convert_text_to_word_spans(text) == expected
+
+    @pytest.mark.parametrize("text, labels, expected", LABELS_TO_SEQUENCE_CASES)
+    def test_convert_labels_to_sequence(self, text, labels, expected):
+        """Verifies that character-level spans are correctly mapped to word-level tags."""
+        result = MetricsCalculator._convert_labels_to_sequence(text, labels)
+        assert result == expected
+
+    def test_convert_labels_to_sequence_raises_error(self):
+        """Tests that an IndexError is raised if a word is expected to have a tag but no label matches."""
+        # This simulates a case where should_be_B_tag is true but the list comprehension fails
+        text = "Microsoft"
+        labels = [NERLabel(start_index=0, end_index=5, entity_type="ORG")]
+
+        with pytest.raises(IndexError, match="A label-text conflict found for span"):
+            MetricsCalculator._convert_labels_to_sequence(text, labels)
+
+    @pytest.mark.parametrize("seq1, seq2, expected1, expected2", FILTER_NON_O_LABELS_CASES)
+    def test_filter_non_o_labels_logic(self, seq1, seq2, expected1, expected2):
+        """Verifies that pairs are only kept if at least one element is not 'O'."""
+        res1, res2 = MetricsCalculator._filter_non_o_labels(seq1, seq2)
+        assert res1 == expected1
+        assert res2 == expected2
+
+    def test_filter_non_o_labels_length_mismatch(self):
+        """Verifies that a ValueError is raised when sequences have different lengths."""
+        seq1 = ["O", "PER", "LOC"]
+        seq2 = ["O", "PER"]
+
+        with pytest.raises(ValueError, match="Sequences have different lengths"):
+            MetricsCalculator._filter_non_o_labels(seq1, seq2)

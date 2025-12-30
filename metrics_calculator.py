@@ -83,14 +83,14 @@ class MetricsCalculator:
             Returns two lists containing only the elements where
             at least one of the annotators did not label it as "O".
         """
-        # Use zip to pair elements, then filter if either isn't "O"
+        if len(sequence1) != len(sequence2):
+            raise ValueError(f"Sequences have different lengths: {len(sequence1) = } while {len(sequence2) = }.")
+
         filtered_pairs = [(a, b) for a, b in zip(sequence1, sequence2) if not (a == "O" and b == "O")]
 
-        # If no entities were found, return two empty lists
         if not filtered_pairs:
             return [], []
 
-        # Unpack the pairs back into two separate lists
         non_o_sequence1, non_o_sequence2 = zip(*filtered_pairs)
         return list(non_o_sequence1), list(non_o_sequence2)
 
