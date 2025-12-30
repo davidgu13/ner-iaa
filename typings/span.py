@@ -15,3 +15,6 @@ class Span(BaseModel):
 
     def __contains__(self, item):
         return self.start_index <= item.start_index and item.end_index <= self.end_index
+
+    def __eq__(self, other):
+        return self.start_index == other.start_index and self.end_index == other.end_index
