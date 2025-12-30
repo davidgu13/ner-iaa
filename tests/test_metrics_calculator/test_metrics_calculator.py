@@ -2,8 +2,17 @@ import pytest
 
 from metrics_calculator import MetricsCalculator
 from tests.test_metrics_calculator.constants import FILTER_NON_O_LABELS_CASES, LABELS_TO_SEQUENCE_CASES, \
-    TEXT_TO_WORD_SPANS_CASES
+    MASK_SEQUENCE_CASES, TEXT_TO_WORD_SPANS_CASES
 from typings.ner_label import NERLabel
+
+
+class MockCalculator:
+    """A small mock to simulate the instance containing the flag."""
+    def __init__(self, should_ignore_o_labels: bool):
+        self.should_ignore_o_labels = should_ignore_o_labels
+
+    # Binding the method to the mock for testing
+    _mask_sequence = MetricsCalculator._mask_sequence
 
 
 class TestMetricsCalculator:
@@ -28,7 +37,7 @@ class TestMetricsCalculator:
             MetricsCalculator._convert_labels_to_sequence(text, labels)
 
     @pytest.mark.parametrize("seq1, seq2, expected1, expected2", FILTER_NON_O_LABELS_CASES)
-    def test_filter_non_o_labels_logic(self, seq1, seq2, expected1, expected2):
+    def test_filter_non_o_labels(self, seq1, seq2, expected1, expected2):
         """Verifies that pairs are only kept if at least one element is not 'O'."""
         res1, res2 = MetricsCalculator._filter_non_o_labels(seq1, seq2)
         assert res1 == expected1
@@ -41,3 +50,11 @@ class TestMetricsCalculator:
 
         with pytest.raises(ValueError, match="Sequences have different lengths"):
             MetricsCalculator._filter_non_o_labels(seq1, seq2)
+
+    @pytest.mark.parametrize("ignore_o, entity, seq1, seq2, expected1, expected2", MASK_SEQUENCE_CASES)
+    def test_mask_sequence(self, ignore_o, entity, seq1, seq2, expected1, expected2):
+        calc = MockCalculator(should_ignore_o_labels=ignore_o)
+        res1, res2 = calc._mask_sequence(seq1, seq2, entity)
+
+        assert res1 == expected1
+        assert res2 == expected2

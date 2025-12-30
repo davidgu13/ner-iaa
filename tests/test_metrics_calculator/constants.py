@@ -99,3 +99,53 @@ FILTER_NON_O_LABELS_CASES = [
         []
     )
 ]
+
+MASK_SEQUENCE_CASES = [
+    # 1. ignore_o=False: Simple mapping of the target entity
+    (
+        False,
+        "PER",
+        ["PER", "O", "LOC"],
+        ["O", "O", "PER"],
+        [1, 0, 0],
+        [0, 0, 1]  # seq2 has PER, but at index 2 (which is 0 in mask 1)
+    ),
+    # 2. ignore_o=True: 'O'-'O' pairs are dropped before masking
+    # Input: ("PER", "O"), ("O", "O"), ("LOC", "PER")
+    # Dropped: Index 1 ("O", "O")
+    # Remaining: ("PER", "O"), ("LOC", "PER")
+    (
+        True,
+        "PER",
+        ["PER", "O", "LOC"],
+        ["O", "O", "PER"],
+        [1, 0],
+        [0, 1]
+    ),
+    # 3. ignore_o=True: Target entity is "LOC"
+    (
+        True,
+        "LOC",
+        ["PER", "O", "LOC"],
+        ["O", "O", "PER"],
+        [0, 1],
+        [0, 0]
+    ),
+    # 4. No occurrences of the entity
+    (
+        False, "ORG",
+        ["PER", "LOC"],
+        ["PER", "O"],
+        [0, 0],
+        [0, 0]
+    ),
+    # 5. ignore_o=True: Empty result if all are "O"
+    (
+        True,
+        "PER",
+        ["O", "O"],
+        ["O", "O"],
+        [],
+        []
+    )
+]

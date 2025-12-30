@@ -123,6 +123,8 @@ class MetricsCalculator:
         for entity_type in ENTITY_TYPES:
             f1_score = self._calculate_score(entity_type, sequence1, sequence2, SupportedMetrics.f1)
             kappa_score = self._calculate_score(entity_type, sequence1, sequence2, SupportedMetrics.cohens_kappa)
-            scores_per_entity[entity_type] = {"f1_score": np.round(f1_score, 4),
-                                              "cohens_kappa_score": np.round(kappa_score, 4)}
+            scores_per_entity[entity_type] = {
+                "f1_score": np.round(f1_score, 4),
+                "cohens_kappa_score": np.round(kappa_score, 4)
+            }
         return scores_per_entity
