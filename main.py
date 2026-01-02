@@ -1,5 +1,4 @@
 from metrics_calculator import MetricsCalculator
-from typings.ner_label import NERLabel
 
 
 def main():
@@ -31,11 +30,11 @@ def main():
                        [267, 275, 'LOC']]  # modeling
 
     metrics_without_o = MetricsCalculator(should_ignore_o_labels=True)
-    scores_without_o = metrics_without_o.report_metrics(input_text, parsed_doccano_labels1, parsed_doccano_labels2)
+    scores_without_o = metrics_without_o.report_metrics_from_doccano_labels(input_text, doccano_labels1, doccano_labels2)
     print(f"Scores without 'O':\n{scores_without_o}")
 
     metrics_with_o = MetricsCalculator(should_ignore_o_labels=False)
-    scores_with_o = metrics_with_o.report_metrics(input_text, parsed_doccano_labels1, parsed_doccano_labels2)
+    scores_with_o = metrics_with_o.report_metrics_from_doccano_labels(input_text, doccano_labels1, doccano_labels2)
     print(f"Scores with 'O':\n{scores_with_o}")
 
 

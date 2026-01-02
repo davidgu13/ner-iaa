@@ -128,3 +128,9 @@ class MetricsCalculator:
                 "cohens_kappa_score": np.round(kappa_score, 4)
             }
         return scores_per_entity
+
+    def report_metrics_from_doccano_labels(self, text: str, labels1: list[list[int, int, str]],
+                                           labels2: list[list[int, int, str]]):
+        parsed_labels1 = [NERLabel.from_doccano_format(label) for label in labels1]
+        parsed_labels2 = [NERLabel.from_doccano_format(label) for label in labels2]
+        return self.report_metrics(text, parsed_labels1, parsed_labels2)

@@ -12,6 +12,7 @@ from typings.ner_label import NERLabel
 
 class MockCalculator:
     """A small mock to simulate the instance containing the flag."""
+
     def __init__(self, should_ignore_o_labels: bool):
         self.should_ignore_o_labels = should_ignore_o_labels
 
@@ -75,4 +76,20 @@ class TestMetricsCalculator:
         actual_scores_with_o = metrics_with_o.report_metrics(REAL_EXAMPLE_SIMPLE_TOKENIZATION_TEXT,
                                                              PARSED_DOCCANO_LABELS1,
                                                              PARSED_DOCCANO_LABELS2)
+        assert REAL_EXAMPLE_SIMPLE_TOKENIZATION_EXPECTED_SCORES_WITH_O == actual_scores_with_o
+
+    def test_report_metrics_real_example_without_o_from_doccano(self):
+        metrics_without_o = MetricsCalculator(should_ignore_o_labels=True)
+        actual_scores_without_o = metrics_without_o.report_metrics_from_doccano_labels(
+            REAL_EXAMPLE_SIMPLE_TOKENIZATION_TEXT,
+            REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS1,
+            REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS2)
+        assert REAL_EXAMPLE_SIMPLE_TOKENIZATION_EXPECTED_SCORES_WITHOUT_O == actual_scores_without_o
+
+    def test_report_metrics_real_example_with_o_from_doccano(self):
+        metrics_with_o = MetricsCalculator(should_ignore_o_labels=False)
+        actual_scores_with_o = metrics_with_o.report_metrics_from_doccano_labels(
+            REAL_EXAMPLE_SIMPLE_TOKENIZATION_TEXT,
+            REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS1,
+            REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS2)
         assert REAL_EXAMPLE_SIMPLE_TOKENIZATION_EXPECTED_SCORES_WITH_O == actual_scores_with_o
