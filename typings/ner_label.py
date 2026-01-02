@@ -13,3 +13,11 @@ class NERLabel(Span):
 
     def __eq__(self, other):
         return self.entity_type == other.entity_type and super(NERLabel, self).__eq__(other)
+
+    @classmethod
+    def from_doccano_format(cls, doccano_label: list[int, int, str]):
+        """
+        Initializes NERLabel from [start_index, end_index, entity_type]
+        """
+        start_index, end_index, entity_type = doccano_label
+        return cls(start_index=start_index, end_index=end_index, entity_type=entity_type)
