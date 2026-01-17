@@ -21,3 +21,7 @@ class NERLabel(Span):
         """
         start_index, end_index, entity_type = doccano_label
         return cls(start_index=start_index, end_index=end_index, entity_type=entity_type)
+
+    @classmethod
+    def from_doccano_format_multiple_labels(cls, docanno_labels: list[list[int, int, str]]):
+        return [NERLabel.from_doccano_format(label) for label in docanno_labels]

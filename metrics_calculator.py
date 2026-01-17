@@ -7,10 +7,11 @@ from metrics import calculate_cohens_kappa, calculate_f1
 from typings.binary_list import BinaryList
 from typings.entity_type import ENTITY_TYPES
 from typings.ner_label import NERLabel
+from typings.span import Span
 from typings.supported_metrics import SupportedMetrics
 from typings.word_span import WordSpan
 
-metric2implementation = {SupportedMetrics.f1: calculate_f1, SupportedMetrics.cohens_kappa: calculate_cohens_kappa}
+METRIC2IMPLEMENTATION = {SupportedMetrics.f1: calculate_f1, SupportedMetrics.cohens_kappa: calculate_cohens_kappa}
 
 
 class MetricsCalculator:
@@ -24,7 +25,6 @@ class MetricsCalculator:
     6. Entity types are statically defined, not dynamically inferred
     7. BIO format is not supported, because it's tokenization-coupled
     TODO:
-    - Add tests for this class' logic using the code in main.py
     - Get rid of the space-delimetering (without using BIO) and move to using just the indices of the labels' spans. Is it also the part where partial overlapping is accounted?
     """
 
@@ -109,20 +109,17 @@ class MetricsCalculator:
             sequence2_mask = [1 if item == entity else 0 for item in sequence2]
         return sequence1_mask, sequence2_mask
 
-    def _calculate_score(self, entity_type: str, sequence1: list[str], sequence2: list[str], metric: SupportedMetrics):
-        # Mask the 2 labels w.r.t. the current entity, so the task is reduced to binary classification
-        sequence1_mask, sequence2_mask = self._mask_sequence(sequence1, sequence2, entity_type)
-        score_per_entity = metric2implementation[metric](sequence1_mask, sequence2_mask)
-        return score_per_entity
-
-    def report_metrics(self, text: str, labels1: list[NERLabel], labels2: list[NERLabel]):
+    def _report_metrics_from_labels(self, text: str, labels1: list[NERLabel], labels2: list[NERLabel]):
         sequence1 = MetricsCalculator._convert_labels_to_sequence(text, labels1)
         sequence2 = MetricsCalculator._convert_labels_to_sequence(text, labels2)
 
         scores_per_entity = {}
         for entity_type in ENTITY_TYPES:
-            f1_score = self._calculate_score(entity_type, sequence1, sequence2, SupportedMetrics.f1)
-            kappa_score = self._calculate_score(entity_type, sequence1, sequence2, SupportedMetrics.cohens_kappa)
+            # Mask the 2 labels w.r.t. the current entity, so the task is reduced to binary classification
+            sequence1_mask, sequence2_mask = self._mask_sequence(sequence1, sequence2, entity_type)
+
+            f1_score = METRIC2IMPLEMENTATION[SupportedMetrics.f1](sequence1_mask, sequence2_mask)
+            kappa_score = METRIC2IMPLEMENTATION[SupportedMetrics.cohens_kappa](sequence1_mask, sequence2_mask)
             scores_per_entity[entity_type] = {
                 "f1_score": np.round(f1_score, 4),
                 "cohens_kappa_score": np.round(kappa_score, 4)
@@ -131,6 +128,6 @@ class MetricsCalculator:
 
     def report_metrics_from_doccano_labels(self, text: str, labels1: list[list[int, int, str]],
                                            labels2: list[list[int, int, str]]):
-        parsed_labels1 = [NERLabel.from_doccano_format(label) for label in labels1]
-        parsed_labels2 = [NERLabel.from_doccano_format(label) for label in labels2]
-        return self.report_metrics(text, parsed_labels1, parsed_labels2)
+        parsed_labels1 = NERLabel.from_doccano_format_multiple_labels(labels1)
+        parsed_labels2 = NERLabel.from_doccano_format_multiple_labels(labels2)
+        return self._report_metrics_from_labels(text, parsed_labels1, parsed_labels2)

@@ -33,20 +33,18 @@ REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS2 = [[0, 20, 'PER'],  # Paris Whi
                                                     [267, 275, 'LOC']]  # modeling
 
 REAL_EXAMPLE_SIMPLE_TOKENIZATION_EXPECTED_SCORES_WITHOUT_O = {'PER': {'f1_score': 0.9231, 'cohens_kappa_score': 0.8947},
-                                                     'LOC': {'f1_score': 0.9231, 'cohens_kappa_score': 0.8947},
-                                                     'ORG': {'f1_score': 0.4444, 'cohens_kappa_score': 0.3617},
-                                                     'TEMP': {'f1_score': 1.0, 'cohens_kappa_score': 1.0}}
+                                                              'LOC': {'f1_score': 0.9231, 'cohens_kappa_score': 0.8947},
+                                                              'ORG': {'f1_score': 0.4444, 'cohens_kappa_score': 0.3617},
+                                                              'TEMP': {'f1_score': 1.0, 'cohens_kappa_score': 1.0}}
 
 REAL_EXAMPLE_SIMPLE_TOKENIZATION_EXPECTED_SCORES_WITH_O = {'PER': {'f1_score': 0.9231, 'cohens_kappa_score': 0.9136},
-                                                  'LOC': {'f1_score': 0.9231, 'cohens_kappa_score': 0.9136},
-                                                  'ORG': {'f1_score': 0.4444, 'cohens_kappa_score': 0.4135},
-                                                  'TEMP': {'f1_score': 1.0, 'cohens_kappa_score': 1.0}}
+                                                           'LOC': {'f1_score': 0.9231, 'cohens_kappa_score': 0.9136},
+                                                           'ORG': {'f1_score': 0.4444, 'cohens_kappa_score': 0.4135},
+                                                           'TEMP': {'f1_score': 1.0, 'cohens_kappa_score': 1.0}}
 
 # Dummy test cases:
-PARSED_DOCCANO_LABELS1 = [NERLabel.from_doccano_format(label) for label in
-                          REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS1]
-PARSED_DOCCANO_LABELS2 = [NERLabel.from_doccano_format(label) for label in
-                          REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS2]
+PARSED_DOCCANO_LABELS1 = NERLabel.from_doccano_format_multiple_labels(REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS1)
+PARSED_DOCCANO_LABELS2 = NERLabel.from_doccano_format_multiple_labels(REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS2)
 
 TEXT_TO_WORD_SPANS_CASES = [
     ("Hello world", [
@@ -73,17 +71,15 @@ TEXT_TO_WORD_SPANS_CASES = [
 LABELS_TO_SEQUENCE_CASES = [
     # 1. Standard single-word entities
     ("John lives in London",
-     [
-         NERLabel.from_doccano_format([0, 4, "PER"]),
-         NERLabel.from_doccano_format([14, 20, "LOC"])
-     ],
+     NERLabel.from_doccano_format_multiple_labels([
+         [0, 4, "PER"],
+         [14, 20, "LOC"]
+     ]),
      ["PER", "O", "O", "LOC"]
      ),
     # 2. Multi-word entity (Check if it handles sequence of tags)
     ("New York is cold",
-     [
-         NERLabel.from_doccano_format([0, 8, "LOC"])
-     ],
+     NERLabel.from_doccano_format_multiple_labels([[0, 8, "LOC"]]),
      ["LOC", "LOC", "O", "O"]
      ),
     # 3. No entities (All "O")
@@ -95,9 +91,7 @@ LABELS_TO_SEQUENCE_CASES = [
     # 4. Entities with extra whitespace in text
     (
         "  Apple   Inc  ",
-        [
-            NERLabel.from_doccano_format([2, 13, "ORG"])
-        ],
+        NERLabel.from_doccano_format_multiple_labels([[2, 13, "ORG"]]),
         ["ORG", "ORG"]
     ),
     # 5. Real-world English text with simplified space-delimited tokenization - GT
