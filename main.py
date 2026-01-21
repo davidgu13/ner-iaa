@@ -1,41 +1,38 @@
 from metrics_calculator import MetricsCalculator
+from metrics_calculator_character_level import MetricsCalculatorCharacterLevel
+from tests.test_metrics_calculator.constants import PARSED_DOCCANO_LABELS1, REAL_EXAMPLE_SIMPLE_TOKENIZATION_TEXT
+from typings.ner_label import NERLabel
 
 
 def main():
-    input_text = "Paris Whitney Hilton , born February 17, 1981 is an American television " \
-                 "personality and businesswoman . She is the great-granddaughter of " \
-                 "Conrad Hilton , the founder of Hilton Hotels . Born in New York City and " \
-                 "raised in both California and New York , Hilton began a modeling career " \
-                 "when she signed with Donald Trump ’s modeling agency ."
-    doccano_labels1 = [[0, 20, 'PER'],  # Paris Whitney Hilton
-                       [28, 45, 'TEMP'],  # February 17 , 1981
-                       [138, 151, 'PER'],  # Conrad Hilton
-                       [169, 182, 'ORG'],  # Hilton Hotel
-                       [193, 206, 'LOC'],  # New York City
-                       [226, 236, 'LOC'],  # California
-                       [241, 249, 'LOC'],  # New York
-                       [252, 258, 'PER'],  # Hilton
-                       # [304, 316, 'PER'],    # Donald Trump
-                       [304, 335, 'ORG']]  # Donald Trump ’s modeling agency
+    # metrics_without_o = MetricsCalculator(should_ignore_o_labels=True)
+    # scores_without_o = metrics_without_o.report_metrics_from_doccano_labels(input_text, doccano_labels1, doccano_labels2)
+    # print(f"Scores without 'O':\n{scores_without_o}")
+    #
+    # metrics_with_o = MetricsCalculator(should_ignore_o_labels=False)
+    # scores_with_o = metrics_with_o.report_metrics_from_doccano_labels(input_text, doccano_labels1, doccano_labels2)
+    # print(f"Scores with 'O':\n{scores_with_o}")
 
-    doccano_labels2 = [[0, 20, 'PER'],  # Paris Whitney Hilton
-                       [28, 45, 'TEMP'],  # February 17 , 1981
-                       [138, 151, 'PER'],  # Conrad Hilton
-                       [169, 182, 'ORG'],  # Hilton Hotels
-                       [185, 189, 'PER'],  # Born
-                       [193, 206, 'LOC'],  # New York City
-                       [226, 236, 'LOC'],  # California
-                       [241, 249, 'LOC'],  # New York
-                       [252, 258, 'PER'],  # Hilton
-                       [267, 275, 'LOC']]  # modeling
+    # metrics_calculator = MetricsCalculator(character_level_evaluation=True, should_ignore_o_labels=True)
 
-    metrics_without_o = MetricsCalculator(should_ignore_o_labels=True)
-    scores_without_o = metrics_without_o.report_metrics_from_doccano_labels(input_text, doccano_labels1, doccano_labels2)
-    print(f"Scores without 'O':\n{scores_without_o}")
+    # filled = MetricsCalculator._fill_with_o_labels(REAL_EXAMPLE_SIMPLE_TOKENIZATION_TEXT,
+    #                                                PARSED_DOCCANO_LABELS1)
+    # print(*filled, sep='\n')
 
-    metrics_with_o = MetricsCalculator(should_ignore_o_labels=False)
-    scores_with_o = metrics_with_o.report_metrics_from_doccano_labels(input_text, doccano_labels1, doccano_labels2)
-    print(f"Scores with 'O':\n{scores_with_o}")
+    spans1 = NERLabel.from_doccano_format_multiple_labels(
+        [[10, 15, 'PER'],
+         [15, 20, 'O'],
+         [20, 25, 'PER']])
+    # spans2 = NERLabel.from_doccano_format_multiple_labels(
+    #     [[10, 12, 'PER'],
+    #      [12, 21, 'O'],
+    #      [21, 25, 'PER']])
+    #
+    # result_span1 = NERLabel.from_doccano_format_multiple_labels([[10, 15, 'PER'], [20, 25, 'PER']])
+    # result_span2 = NERLabel.from_doccano_format_multiple_labels([[10, 12, 'PER'], [12, 15, 'O'], [20, 21, 'O'], [21, 25, 'PER']])
+    # print(MetricsCalculatorCharacterLevel.filter_mutual_o_spans(spans1, spans2))
+
+    print(dict(enumerate(MetricsCalculatorCharacterLevel._convert_labels_to_sequence(30, spans1))))
 
 
 if __name__ == '__main__':
