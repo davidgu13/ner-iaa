@@ -1,7 +1,7 @@
 import pytest
 
 from ner_inter_annotator_agreement import NERInterAnnotatorAgreement
-from tests.test_metrics_calculator.constants import FILTER_NON_O_LABELS_CASES, LABELS_TO_SEQUENCE_CASES, \
+from tests.test_ner_iaa.constants import FILTER_NON_O_LABELS_CASES, LABELS_TO_SEQUENCE_CASES, \
     MASK_SEQUENCE_CASES, PARSED_DOCCANO_LABELS1, PARSED_DOCCANO_LABELS2, \
     REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS1, \
     REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS2, REAL_EXAMPLE_SIMPLE_TOKENIZATION_EXPECTED_SCORES_WITHOUT_O, \
@@ -21,30 +21,30 @@ class MockCalculator:
 
 
 @pytest.fixture
-def metrics_calculator():
+def ner_iaa():
     return NERInterAnnotatorAgreement()
 
 
-class TestMetricsCalculator:
+class TestNERInterAnnotatorAgreement:
     @pytest.mark.parametrize("text, expected", TEXT_TO_WORD_SPANS_CASES)
-    def test_convert_text_to_word_spans(self, metrics_calculator, text, expected):
+    def test_convert_text_to_word_spans(self, ner_iaa, text, expected):
         """Verifies that text is correctly split into WordSpan objects with accurate indices."""
-        assert metrics_calculator._convert_text_to_word_spans(text) == expected
+        assert ner_iaa._convert_text_to_word_spans(text) == expected
 
     @pytest.mark.parametrize("text, labels, expected", LABELS_TO_SEQUENCE_CASES)
-    def test_convert_labels_to_sequence(self, metrics_calculator, text, labels, expected):
-        """Verifies that character-level spans are correctly mapped to word-level tags."""
-        result = metrics_calculator._convert_labels_to_sequence(text, labels)
+    def test_convert_labels_to_sequence(self, ner_iaa, text, labels, expected):
+        """Verifies that spans are correctly mapped to word-level tags."""
+        result = ner_iaa._convert_labels_to_sequence(text, labels)
         assert result == expected
 
-    def test_convert_labels_to_sequence_raises_error(self, metrics_calculator):
+    def test_convert_labels_to_sequence_raises_error(self, ner_iaa):
         """Tests that an IndexError is raised if a word is expected to have a tag but no label matches."""
         # This simulates a case where should_be_B_tag is true but the list comprehension fails
         text = "Microsoft"
         labels = [NERLabel(start_index=0, end_index=5, entity_type="ORG")]
 
         with pytest.raises(IndexError, match="A label-text conflict found for span"):
-            metrics_calculator._convert_labels_to_sequence(text, labels)
+            ner_iaa._convert_labels_to_sequence(text, labels)
 
     @pytest.mark.parametrize("seq1, seq2, expected1, expected2", FILTER_NON_O_LABELS_CASES)
     def test_filter_non_o_labels(self, seq1, seq2, expected1, expected2):
