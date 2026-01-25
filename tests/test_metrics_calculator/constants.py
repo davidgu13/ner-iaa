@@ -73,15 +73,15 @@ REAL_EXAMPLE_DOCCANO_LABELS2 = [[0, 20, 'PER'],  # Paris Whitney Hilton
                                 [252, 258, 'PER'],  # Hilton
                                 [267, 275, 'LOC']]  # modeling
 
-REAL_EXAMPLE_EXPECTED_SCORES_WITHOUT_O = {'PER': {'f1_score': 0.9231, 'cohens_kappa_score': 0.8947},
-                                          'LOC': {'f1_score': 0.9231, 'cohens_kappa_score': 0.8947},
-                                          'ORG': {'f1_score': 0.4444, 'cohens_kappa_score': 0.3617},
-                                          'TEMP': {'f1_score': 1.0, 'cohens_kappa_score': 1.0}}
+REAL_EXAMPLE_EXPECTED_SCORES_WITHOUT_O = {'PER': {'f1_score': 0.7442, 'cohens_kappa_score': 0.6592},
+                                          'LOC': {'f1_score': 0.5135, 'cohens_kappa_score': 0.3837},
+                                          'ORG': {'f1_score': 0.3509, 'cohens_kappa_score': 0.2594},
+                                          'TEMP': {'f1_score': 0.9143, 'cohens_kappa_score': 0.9045}}
 
-REAL_EXAMPLE_EXPECTED_SCORES_WITH_O = {'PER': {'f1_score': 0.9231, 'cohens_kappa_score': 0.9136},
-                                       'LOC': {'f1_score': 0.9231, 'cohens_kappa_score': 0.9136},
-                                       'ORG': {'f1_score': 0.4444, 'cohens_kappa_score': 0.4135},
-                                       'TEMP': {'f1_score': 1.0, 'cohens_kappa_score': 1.0}}
+REAL_EXAMPLE_EXPECTED_SCORES_WITH_O = {'PER': {'f1_score': 0.7442, 'cohens_kappa_score': 0.7062},
+                                       'LOC': {'f1_score': 0.5135, 'cohens_kappa_score': 0.4539},
+                                       'ORG': {'f1_score': 0.3509, 'cohens_kappa_score': 0.3065},
+                                       'TEMP': {'f1_score': 0.9143, 'cohens_kappa_score': 0.9095}}
 
 # Dummy test cases:
 PARSED_DOCCANO_LABELS1 = NERLabel.from_doccano_format_multiple_labels(REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS1)

@@ -1,8 +1,8 @@
-from metrics_calculator import MetricsCalculator
+from metrics_calculator import NERInterAnnotatorAgreement
 from typings.ner_label import NERLabel
 
 
-class MetricsCalculatorCharacterLevel(MetricsCalculator):
+class NERInterAnnotatorAgreementCharacterLevel(NERInterAnnotatorAgreement):
     """
     No need to override the methods report_metrics_from_doccano_labels and _report_metrics_from_labels.
     The only difference is in _convert_labels_to_sequence, and it derives from the "character-level tokenization"
@@ -38,7 +38,7 @@ class MetricsCalculatorCharacterLevel(MetricsCalculator):
         For example, "NYC is..." -> [LOC, LOC, LOC, O, O, O, ...]
         """
         character_level_labels = []
-        explicit_labels = MetricsCalculatorCharacterLevel._fill_implicit_o_labels(len(text), labels)
+        explicit_labels = NERInterAnnotatorAgreementCharacterLevel._fill_implicit_o_labels(len(text), labels)
         for label in explicit_labels:
             character_level_labels.extend([label.entity_type] * len(label))
         return character_level_labels

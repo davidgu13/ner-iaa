@@ -14,7 +14,7 @@ from typings.word_span import WordSpan
 METRIC2IMPLEMENTATION = {SupportedMetrics.f1: calculate_f1, SupportedMetrics.cohens_kappa: calculate_cohens_kappa}
 
 
-class MetricsCalculator:
+class NERInterAnnotatorAgreement:
     """
     Features:
     1. Supported metrics: mutual F1 score, mutual Cohen's Kappa score
@@ -56,7 +56,7 @@ class MetricsCalculator:
         :param labels: Doccano's spans format, e.g. [[20, 25, PER], [30, 40, LOC], [43, 49, ORG]]
         :return: the tags of each word of the text
         """
-        words_spans: list[WordSpan] = MetricsCalculator._convert_text_to_word_spans(text)
+        words_spans: list[WordSpan] = NERInterAnnotatorAgreement._convert_text_to_word_spans(text)
         labels_start_indices = [label.start_index for label in labels]
 
         entity_types_sequence: list[str] = []
@@ -100,7 +100,7 @@ class MetricsCalculator:
         If "O" labels should be ignored, the common "O" labels are filtered out first.
         """
         if self.should_ignore_o_labels:
-            non_o_sequence1, non_o_sequence2 = MetricsCalculator._filter_non_o_labels(sequence1, sequence2)
+            non_o_sequence1, non_o_sequence2 = NERInterAnnotatorAgreement._filter_non_o_labels(sequence1, sequence2)
             sequence1_mask = [1 if item == entity else 0 for item in non_o_sequence1]
             sequence2_mask = [1 if item == entity else 0 for item in non_o_sequence2]
         else:

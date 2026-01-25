@@ -1,11 +1,11 @@
-from metrics_calculator_character_level import MetricsCalculatorCharacterLevel
+from metrics_calculator_character_level import NERInterAnnotatorAgreementCharacterLevel
 from tests.test_metrics_calculator.constants import REAL_EXAMPLE_DOCCANO_LABELS1, REAL_EXAMPLE_DOCCANO_LABELS2, \
     REAL_EXAMPLE_TEXT
 from typings.ner_label import NERLabel
 
 
 def main():
-    metrics_without_o = MetricsCalculatorCharacterLevel(should_ignore_o_labels=True)
+    metrics_without_o = NERInterAnnotatorAgreementCharacterLevel(should_ignore_o_labels=True)
     scores_without_o = metrics_without_o.report_metrics_from_doccano_labels(REAL_EXAMPLE_TEXT,
                                                                             REAL_EXAMPLE_DOCCANO_LABELS1,
                                                                             REAL_EXAMPLE_DOCCANO_LABELS2)
@@ -14,7 +14,7 @@ def main():
         print(f"{k}: {v}")
 
 
-    metrics_with_o = MetricsCalculatorCharacterLevel(should_ignore_o_labels=False)
+    metrics_with_o = NERInterAnnotatorAgreementCharacterLevel(should_ignore_o_labels=False)
     scores_with_o = metrics_with_o.report_metrics_from_doccano_labels(REAL_EXAMPLE_TEXT, REAL_EXAMPLE_DOCCANO_LABELS1,
                                                                       REAL_EXAMPLE_DOCCANO_LABELS2)
     print(f"\n\nScores without 'O':")
@@ -32,9 +32,9 @@ def main():
     #
     # result_span1 = NERLabel.from_doccano_format_multiple_labels([[10, 15, 'PER'], [20, 25, 'PER']])
     # result_span2 = NERLabel.from_doccano_format_multiple_labels([[10, 12, 'PER'], [12, 15, 'O'], [20, 21, 'O'], [21, 25, 'PER']])
-    # print(MetricsCalculatorCharacterLevel.filter_mutual_o_spans(spans1, spans2))
+    # print(NERInterAnnotatorAgreementCharacterLevel.filter_mutual_o_spans(spans1, spans2))
     #
-    # metrics_without_o = MetricsCalculatorCharacterLevel(should_ignore_o_labels=True)
+    # metrics_without_o = NERInterAnnotatorAgreementCharacterLevel(should_ignore_o_labels=True)
     # print(metrics_without_o.report_metrics_from_doccano_labels(30, spans1))
 
 
