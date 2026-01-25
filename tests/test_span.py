@@ -19,6 +19,11 @@ class TestSpan:
         assert span.start_index == 0
         assert span.end_index == 10
 
+    def test_end_index_equal_to_start(self):
+        """Tests that end_index can equal start_index."""
+        span = Span(start_index=5, end_index=5)
+        assert span.start_index == span.end_index == 5
+
     def test_negative_start_index(self):
         """Tests the pydantic Field(ge=0) constraint."""
         with pytest.raises(ValidationError, match="Input should be greater than or equal to 0"):
@@ -27,13 +32,8 @@ class TestSpan:
 
     def test_end_index_less_than_start(self):
         """Tests the custom field_validator logic."""
-        with pytest.raises(ValidationError, match="end_index must be greater than start_index"):
+        with pytest.raises(ValidationError, match="end_index must be greater than or equal start_index"):
             Span(start_index=5, end_index=3)
-
-    def test_end_index_equal_to_start(self):
-        """Tests that end_index cannot be equal to start_index."""
-        with pytest.raises(ValidationError, match="end_index must be greater than start_index"):
-            Span(start_index=5, end_index=5)
 
     @pytest.mark.parametrize("parent, child, expected", SPANS_CONTAINMENT_LOGIC_CASES)
     def test_contains_logic(self, parent, child, expected):

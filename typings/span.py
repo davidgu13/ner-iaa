@@ -7,10 +7,10 @@ class Span(BaseModel):
 
     @field_validator("end_index")
     @classmethod
-    def end_must_be_greater_than_start(cls, end_index, info):
+    def end_must_be_greater_or_equal_to_start(cls, end_index, info):
         start_index = info.data.get("start_index")
-        if start_index is not None and end_index <= start_index:
-            raise ValueError("end_index must be greater than start_index")
+        if start_index is not None and end_index < start_index:
+            raise ValueError("end_index must be greater than or equal start_index")
         return end_index
 
     def __contains__(self, item):
@@ -18,3 +18,6 @@ class Span(BaseModel):
 
     def __eq__(self, other):
         return self.start_index == other.start_index and self.end_index == other.end_index
+
+    def __len__(self):
+        return self.end_index - self.start_index + 1
