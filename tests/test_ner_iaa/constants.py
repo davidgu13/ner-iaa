@@ -42,47 +42,6 @@ REAL_EXAMPLE_SIMPLE_TOKENIZATION_EXPECTED_SCORES_WITH_O = {'PER': {'f1_score': 0
                                                            'ORG': {'f1_score': 0.4444, 'cohens_kappa_score': 0.4135},
                                                            'TEMP': {'f1_score': 1.0, 'cohens_kappa_score': 1.0}}
 
-# Real-world example with character-level evaluation:
-REAL_EXAMPLE_TEXT = "Paris Whitney Hilton, born February 17, 1981 is an American television " \
-                    "personality and businesswoman. She is the great-granddaughter of " \
-                    "Conrad Hilton, the founder of Hilton Hotels. Born in New York City and " \
-                    "raised in both California and New York, Hilton began a modeling career " \
-                    "when she signed with Donald Trump’s modeling agency."
-
-# Ground Truth labels:
-REAL_EXAMPLE_DOCCANO_LABELS1 = [[0, 19, 'PER'],  # Paris Whitney Hilton
-                                [27, 43, 'TEMP'],  # February 17 , 1981
-                                [136, 148, 'PER'],  # Conrad Hilton
-                                [166, 178, 'ORG'],  # Hilton Hotels
-                                [189, 201, 'LOC'],  # New York City
-                                [222, 231, 'LOC'],  # California
-                                [237, 244, 'LOC'],  # New York
-                                [247, 252, 'PER'],  # Hilton
-                                # [299, 310, 'PER'],    # Donald Trump  # Commented bc Nested NER isn't supported yet
-                                [299, 328, 'ORG']]  # Donald Trump’s modeling agency
-
-# Annotatoed labels:
-REAL_EXAMPLE_DOCCANO_LABELS2 = [[0, 20, 'PER'],  # Paris Whitney Hilton
-                                [28, 45, 'TEMP'],  # February 17 , 1981
-                                [138, 151, 'PER'],  # Conrad Hilton
-                                [169, 182, 'ORG'],  # Hilton Hotels
-                                [185, 189, 'PER'],  # Born
-                                [193, 206, 'LOC'],  # New York City
-                                [226, 236, 'LOC'],  # California
-                                [241, 249, 'LOC'],  # New York
-                                [252, 258, 'PER'],  # Hilton
-                                [267, 275, 'LOC']]  # modeling
-
-REAL_EXAMPLE_EXPECTED_SCORES_WITHOUT_O = {'PER': {'f1_score': 0.7442, 'cohens_kappa_score': 0.6592},
-                                          'LOC': {'f1_score': 0.5135, 'cohens_kappa_score': 0.3837},
-                                          'ORG': {'f1_score': 0.3509, 'cohens_kappa_score': 0.2594},
-                                          'TEMP': {'f1_score': 0.9143, 'cohens_kappa_score': 0.9045}}
-
-REAL_EXAMPLE_EXPECTED_SCORES_WITH_O = {'PER': {'f1_score': 0.7442, 'cohens_kappa_score': 0.7062},
-                                       'LOC': {'f1_score': 0.5135, 'cohens_kappa_score': 0.4539},
-                                       'ORG': {'f1_score': 0.3509, 'cohens_kappa_score': 0.3065},
-                                       'TEMP': {'f1_score': 0.9143, 'cohens_kappa_score': 0.9095}}
-
 # Dummy test cases:
 PARSED_DOCCANO_LABELS1 = NERLabel.from_doccano_format_multiple_labels(REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS1)
 PARSED_DOCCANO_LABELS2 = NERLabel.from_doccano_format_multiple_labels(REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS2)
