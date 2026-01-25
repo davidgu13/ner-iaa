@@ -49,8 +49,7 @@ class MetricsCalculator:
             }))
         return tokens_with_indices
 
-    @staticmethod
-    def _convert_labels_to_sequence(text: str, labels: list[NERLabel]) -> list[str]:
+    def _convert_labels_to_sequence(self, text: str, labels: list[NERLabel]) -> list[str]:
         """
         Covnert Doccano's spans format to word-level tags.
         :param text: str
@@ -110,8 +109,8 @@ class MetricsCalculator:
         return sequence1_mask, sequence2_mask
 
     def _report_metrics_from_labels(self, text: str, labels1: list[NERLabel], labels2: list[NERLabel]):
-        sequence1 = MetricsCalculator._convert_labels_to_sequence(text, labels1)
-        sequence2 = MetricsCalculator._convert_labels_to_sequence(text, labels2)
+        sequence1 = self._convert_labels_to_sequence(text, labels1)
+        sequence2 = self._convert_labels_to_sequence(text, labels2)
 
         scores_per_entity = {}
         for entity_type in ENTITY_TYPES:
