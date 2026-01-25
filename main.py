@@ -1,4 +1,4 @@
-from metrics_calculator_character_level import NERInterAnnotatorAgreementCharacterLevel
+from ner_inter_annotator_agreement_character_level import NERInterAnnotatorAgreementCharacterLevel
 from tests.test_metrics_calculator.constants import REAL_EXAMPLE_DOCCANO_LABELS1, REAL_EXAMPLE_DOCCANO_LABELS2, \
     REAL_EXAMPLE_TEXT
 from typings.ner_label import NERLabel

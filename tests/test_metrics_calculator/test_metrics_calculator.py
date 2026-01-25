@@ -1,6 +1,6 @@
 import pytest
 
-from metrics_calculator import NERInterAnnotatorAgreement
+from ner_inter_annotator_agreement import NERInterAnnotatorAgreement
 from tests.test_metrics_calculator.constants import FILTER_NON_O_LABELS_CASES, LABELS_TO_SEQUENCE_CASES, \
     MASK_SEQUENCE_CASES, PARSED_DOCCANO_LABELS1, PARSED_DOCCANO_LABELS2, \
     REAL_EXAMPLE_SIMPLE_TOKENIZATION_DOCCANO_LABELS1, \

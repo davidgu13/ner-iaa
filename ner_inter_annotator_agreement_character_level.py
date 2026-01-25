@@ -1,4 +1,4 @@
-from metrics_calculator import NERInterAnnotatorAgreement
+from ner_inter_annotator_agreement import NERInterAnnotatorAgreement
 from typings.ner_label import NERLabel
 
 

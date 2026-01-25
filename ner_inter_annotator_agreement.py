@@ -15,19 +15,6 @@ METRIC2IMPLEMENTATION = {SupportedMetrics.f1: calculate_f1, SupportedMetrics.coh
 
 
 class NERInterAnnotatorAgreement:
-    """
-    Features:
-    1. Supported metrics: mutual F1 score, mutual Cohen's Kappa score
-    2. Both ignoring and accounting for "O" label occurrences are supported
-    3. Tokenization is space-delimited; Partial overlap doesn't affect the scores (= isn't accounted?)
-    4. Labels are at word level, e.g. "hu nasa le[pariz]" is forbidden
-    5. NER labels are flat, not nested
-    6. Entity types are statically defined, not dynamically inferred
-    7. BIO format is not supported, because it's tokenization-coupled
-    TODO:
-    - Get rid of the space-delimetering (without using BIO) and move to using just the indices of the labels' spans. Is it also the part where partial overlapping is accounted?
-    """
-
     def __init__(self, should_ignore_o_labels: bool = True, partial_overlap_metric: Callable = None):
         self.should_ignore_o_labels = should_ignore_o_labels
         self.partial_overlap_metric = partial_overlap_metric
