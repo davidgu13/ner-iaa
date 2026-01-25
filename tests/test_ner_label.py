@@ -41,5 +41,5 @@ class TestNERLabel:
         Briefly ensures Span logic is still active without exhaustive re-testing.
         This confirms the subclass didn't break base validation.
         """
-        with pytest.raises(ValidationError, match="end_index must be greater than start_index"):
+        with pytest.raises(ValidationError, match="end_index must be greater than or equal start_index"):
             NERLabel(start_index=10, end_index=5, entity_type="ORG")

@@ -20,26 +20,31 @@ class MockCalculator:
     _mask_sequence = MetricsCalculator._mask_sequence
 
 
+@pytest.fixture
+def metrics_calculator():
+    return NERInterAnnotatorAgreement()
+
+
 class TestMetricsCalculator:
     @pytest.mark.parametrize("text, expected", TEXT_TO_WORD_SPANS_CASES)
-    def test_convert_text_to_word_spans(self, text, expected):
+    def test_convert_text_to_word_spans(self, metrics_calculator, text, expected):
         """Verifies that text is correctly split into WordSpan objects with accurate indices."""
-        assert MetricsCalculator._convert_text_to_word_spans(text) == expected
+        assert metrics_calculator._convert_text_to_word_spans(text) == expected
 
     @pytest.mark.parametrize("text, labels, expected", LABELS_TO_SEQUENCE_CASES)
-    def test_convert_labels_to_sequence(self, text, labels, expected):
+    def test_convert_labels_to_sequence(self, metrics_calculator, text, labels, expected):
         """Verifies that character-level spans are correctly mapped to word-level tags."""
-        result = MetricsCalculator._convert_labels_to_sequence(text, labels)
+        result = metrics_calculator._convert_labels_to_sequence(text, labels)
         assert result == expected
 
-    def test_convert_labels_to_sequence_raises_error(self):
+    def test_convert_labels_to_sequence_raises_error(self, metrics_calculator):
         """Tests that an IndexError is raised if a word is expected to have a tag but no label matches."""
         # This simulates a case where should_be_B_tag is true but the list comprehension fails
         text = "Microsoft"
         labels = [NERLabel(start_index=0, end_index=5, entity_type="ORG")]
 
         with pytest.raises(IndexError, match="A label-text conflict found for span"):
-            MetricsCalculator._convert_labels_to_sequence(text, labels)
+            metrics_calculator._convert_labels_to_sequence(text, labels)
 
     @pytest.mark.parametrize("seq1, seq2, expected1, expected2", FILTER_NON_O_LABELS_CASES)
     def test_filter_non_o_labels(self, seq1, seq2, expected1, expected2):
